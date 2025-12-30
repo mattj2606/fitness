@@ -1,0 +1,311 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User (single user for v1)
+model User {
+  id            String   @id @default(cuid())
+  email         String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Core relationships
+  checkins      DailyCheckin[]
+  workouts      Workout[]
+  ptLogs        PTLog[]
+
+  // Nutrition relationships
+  nutritionEntries  NutritionEntry[]
+  nutritionGoals    NutritionGoals?
+
+  // Medication & Supplement relationships
+  medications       Medication[]
+  medicationLogs    MedicationLog[]
+  supplements       Supplement[]
+  supplementLogs   SupplementLog[]
+
+  // Health Profile relationships
+  bloodWorkResults  BloodWorkResult[]
+  medicalHistory    MedicalHistory[]
+}
+
+// Exercises catalog
+model Exercise {
+  id            String   @id @default(cuid())
+  name          String
+  category      String   // "push", "pull", "legs", "cardio", "pt"
+  equipment     String?  // "barbell", "dumbbell", "bodyweight", etc.
+  instructions  String?
+  createdAt     DateTime @default(now())
+
+  muscleTargets ExerciseMuscleMap[]
+  workoutSets   WorkoutSet[]
+}
+
+// Muscle groups
+model Muscle {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  group         String   // "chest", "back", "legs", etc.
+  side          String?  // "left", "right", null for bilateral
+
+  exerciseMaps  ExerciseMuscleMap[]
+}
+
+// Exercise-to-muscle mapping with weights
+model ExerciseMuscleMap {
+  id            String   @id @default(cuid())
+  exerciseId    String
+  muscleId      String
+  weight        Float    @default(1.0) // 0.0-1.0, how much this exercise targets muscle
+
+  exercise      Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  muscle        Muscle   @relation(fields: [muscleId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciseId, muscleId])
+  @@index([muscleId])
+}
+
+// Daily check-ins
+model DailyCheckin {
+  id            String   @id @default(cuid())
+  userId        String
+  date          DateTime @default(now()) @db.Date
+  hoursSlept    Float?
+  sleepQuality  Int?     // 1-5
+  energyLevel   String?  // "low", "normal", "high"
+  sorenessMap   Json?    // { "chest": 2, "quads": 3, ... }
+  acutePain     Boolean  @default(false)
+  painNote      String?
+  timeAvailable String?  // "short", "normal", "long"
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+// Workouts
+model Workout {
+  id            String   @id @default(cuid())
+  userId        String
+  date          DateTime @default(now()) @db.Date
+  type          String?  // "push", "pull", "legs", "pt", "rest"
+  duration      Int?     // minutes
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sets          WorkoutSet[]
+
+  @@index([userId, date])
+}
+
+// Individual sets within a workout
+model WorkoutSet {
+  id            String   @id @default(cuid())
+  workoutId     String
+  exerciseId    String
+  setNumber     Int
+  weight        Float?
+  reps          Int?
+  effort        String?  // "easy", "normal", "hard"
+  restSeconds   Int?
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  workout       Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise      Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@index([workoutId])
+  @@index([exerciseId])
+}
+
+// Physical therapy exercises
+model PTExercise {
+  id            String   @id @default(cuid())
+  name          String
+  instructions  String?
+  required      Boolean  @default(false) // Always required vs. optional
+  createdAt     DateTime @default(now())
+
+  logs          PTLog[]
+}
+
+// PT exercise logs
+model PTLog {
+  id            String   @id @default(cuid())
+  userId        String
+  ptExerciseId  String
+  date          DateTime @default(now()) @db.Date
+  completed     Boolean  @default(true)
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ptExercise    PTExercise @relation(fields: [ptExerciseId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+// Nutrition tracking
+model NutritionEntry {
+  id            String   @id @default(cuid())
+  userId        String
+  date          DateTime @default(now()) @db.Date
+  mealType      MealType
+  foodItems     Json     // Array of food items with quantities
+  calories      Float?
+  protein       Float?   // grams
+  carbs         Float?   // grams
+  fats          Float?   // grams
+  fiber         Float?   // grams
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  OTHER
+}
+
+// Nutrition goals
+model NutritionGoals {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  calories      Int?
+  protein       Float?   // grams per day
+  carbs         Float?   // grams per day
+  fats          Float?   // grams per day
+  fiber         Float?   // grams per day
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Medications
+model Medication {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  dosage        String   // e.g., "10mg", "1 tablet"
+  frequency     String   // e.g., "daily", "twice daily", "as needed"
+  startDate     DateTime? @db.Date
+  endDate       DateTime? @db.Date
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs          MedicationLog[]
+
+  @@index([userId])
+}
+
+// Medication logs
+model MedicationLog {
+  id            String   @id @default(cuid())
+  medicationId  String
+  userId        String
+  takenAt       DateTime @default(now())
+  dosage        String?
+  notes         String?
+
+  medication    Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, takenAt])
+  @@index([medicationId])
+}
+
+// Supplements
+model Supplement {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  dosage        String
+  frequency     String
+  startDate     DateTime? @db.Date
+  endDate       DateTime? @db.Date
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs          SupplementLog[]
+
+  @@index([userId])
+}
+
+// Supplement logs
+model SupplementLog {
+  id            String   @id @default(cuid())
+  supplementId  String
+  userId        String
+  takenAt       DateTime @default(now())
+  dosage        String?
+  notes         String?
+
+  supplement    Supplement @relation(fields: [supplementId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, takenAt])
+  @@index([supplementId])
+}
+
+// Blood work results
+model BloodWorkResult {
+  id            String   @id @default(cuid())
+  userId        String
+  testDate      DateTime @db.Date
+  testType      String   // e.g., "Complete Blood Count", "Lipid Panel"
+  testName      String   // Specific test name
+  value         Float?
+  unit          String?  // e.g., "mg/dL", "mmol/L"
+  referenceRange String? // e.g., "70-100 mg/dL"
+  flag          String?  // "high", "low", "normal"
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, testDate])
+  @@index([userId, testType])
+}
+
+// Medical history
+model MedicalHistory {
+  id            String   @id @default(cuid())
+  userId        String
+  category      String   // "condition", "surgery", "allergy", "family_history"
+  name          String
+  description   String?
+  startDate     DateTime? @db.Date
+  endDate       DateTime? @db.Date
+  severity      String?  // "mild", "moderate", "severe"
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, category])
+}
