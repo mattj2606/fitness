@@ -95,3 +95,4 @@ export function ExerciseCard({ exercise, muscles, onDelete }: ExerciseCardProps)
 }
 
 
+

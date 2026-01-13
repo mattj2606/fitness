@@ -49,3 +49,16 @@ next-env.d.ts
 # OS
 Thumbs.db
 .DS_Store
+
+# AI Tools (Antigravity/Jules/Copilot)
+.gemini/
+.copilot/
+.agent/
+brain/
+*.log
+
+# Docker/Database
+postgres_data/
+
+# Security
+browser_recordings/

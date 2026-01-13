@@ -4,7 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
 
   // Optimize for production
-  swcMinify: true,
+
 
   // Image optimization settings
   images: {
@@ -29,6 +29,7 @@ const nextConfig = {
   },
 
   // Output configuration (for self-hosting)
+  // swcMinify is enabled by default in Next.js 13+
   output: "standalone",
 
   // Environment variables
@@ -66,28 +67,26 @@ const nextConfig = {
 
 // PWA configuration will be added when next-pwa is installed
 // Uncomment and configure when ready for Phase 2:
-/*
-import withPWA from "next-pwa";
-
-export default withPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
-  runtimeCaching: [
-    {
-      urlPattern: /^https?.*/,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "offlineCache",
-        expiration: {
-          maxEntries: 200,
-        },
-      },
-    },
-  ],
-})(nextConfig);
-*/
+// import withPWA from "next-pwa";
+//
+// export default withPWA({
+//   dest: "public",
+//   register: true,
+//   skipWaiting: true,
+//   disable: process.env.NODE_ENV === "development",
+//   runtimeCaching: [
+//     {
+//       urlPattern: /^https?.*/,
+//       handler: "NetworkFirst",
+//       options: {
+//         cacheName: "offlineCache",
+//         expiration: {
+//           maxEntries: 200,
+//         },
+//       },
+//     },
+//   ],
+// })(nextConfig);
 
 export default nextConfig;
 

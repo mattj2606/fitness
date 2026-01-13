@@ -253,3 +253,4 @@ npm run db:studio       # Opens Prisma Studio in browser
 
 **Last Updated**: Session 1 - Phase 0 & Phase 1 Days 3-6 Complete
 
+

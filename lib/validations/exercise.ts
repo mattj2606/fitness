@@ -15,3 +15,4 @@ export type ExerciseInput = z.infer<typeof exerciseSchema>;
 export type ExerciseUpdateInput = z.infer<typeof exerciseUpdateSchema>;
 
 
+

@@ -235,6 +235,13 @@ This document reviews relevant research papers and open-source applications to i
 
 ---
 
+## Related Documents
+
+- **[Recommendation Engine Research](./recommendation-engine-research.md)** - Comprehensive research on ML-powered fitness recommendation systems, exercise databases, and implementation strategies
+
+---
+
 *This document will be updated as more research is discovered and analyzed*
+
 
 

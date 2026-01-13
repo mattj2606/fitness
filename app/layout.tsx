@@ -1,11 +1,16 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 
 export const metadata: Metadata = {
   title: 'Fitness Intelligence App',
   description: 'Personal fitness tracking and workout recommendations',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: '#000000',
 };
 

@@ -1,0 +1,198 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/auth/session';
+import { prisma } from '@/lib/db/prisma';
+import { generateRecommendationV2 } from '@/lib/services/recommendation';
+import { getTodayCheckin } from '@/lib/services/checkin';
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Get today's check-in
+    const checkin = await getTodayCheckin(session.userId);
+    
+    // Get ALL workouts for time-based recovery calculation (not just last 10)
+    const allWorkouts = await prisma.workout.findMany({
+      where: {
+        userId: session.userId,
+      },
+      include: {
+        sets: {
+          include: {
+            exercise: {
+              include: {
+                muscleTargets: {
+                  include: {
+                    muscle: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+      // No limit - we need ALL workouts for time-based recovery
+    });
+    
+    // Get exercise catalog
+    const exerciseCatalog = await prisma.exercise.findMany({
+      include: {
+        muscleTargets: {
+          include: {
+            muscle: true,
+          },
+        },
+      },
+    });
+    
+    // Get user profile (goals, problems, preferences)
+    // TODO: Implement UserFitnessProfile model in database
+    // For now, using empty profile
+    const userProfile = undefined; // Will be loaded from database
+    
+    // Generate recommendation using V2 engine (time-based, ML-ready)
+    const recommendation = await generateRecommendationV2({
+      checkin,
+      allWorkouts,
+      exerciseCatalog,
+      userProfile,
+      dayOfWeek: new Date().getDay(),
+    });
+    
+    // Save recommendation to database
+    const savedRecommendation = await prisma.recommendation.upsert({
+      where: {
+        userId_date: {
+          userId: session.userId,
+          date: new Date(),
+        },
+      },
+      create: {
+        userId: session.userId,
+        date: new Date(),
+        workoutType: recommendation.workoutType,
+        exercises: recommendation.exercises,
+        reasoning: recommendation.reasoning,
+      },
+      update: {
+        workoutType: recommendation.workoutType,
+        exercises: recommendation.exercises,
+        reasoning: recommendation.reasoning,
+      },
+    });
+    
+    return NextResponse.json({
+      ...recommendation,
+      id: savedRecommendation.id,
+    });
+  } catch (error) {
+    console.error('Error generating recommendation:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate recommendation' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Get today's recommendation
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let recommendation = await prisma.recommendation.findUnique({
+      where: {
+        userId_date: {
+          userId: session.userId,
+          date: today,
+        },
+      },
+    });
+    
+    // If no recommendation exists, generate one
+    if (!recommendation) {
+      const checkin = await getTodayCheckin(session.userId);
+      
+      const allWorkouts = await prisma.workout.findMany({
+        where: {
+          userId: session.userId,
+        },
+        include: {
+          sets: {
+            include: {
+              exercise: {
+                include: {
+                  muscleTargets: {
+                    include: {
+                      muscle: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          date: 'desc',
+        },
+        // No limit - time-based recovery needs all workouts
+      });
+      
+      const exerciseCatalog = await prisma.exercise.findMany({
+        include: {
+          muscleTargets: {
+            include: {
+              muscle: true,
+            },
+          },
+        },
+      });
+      
+      const userProfile = undefined; // TODO: Load from database
+      
+      const generated = await generateRecommendationV2({
+        checkin,
+        allWorkouts,
+        exerciseCatalog,
+        userProfile,
+        dayOfWeek: new Date().getDay(),
+      });
+      
+      recommendation = await prisma.recommendation.create({
+        data: {
+          userId: session.userId,
+          date: today,
+          workoutType: generated.workoutType,
+          exercises: generated.exercises,
+          reasoning: generated.reasoning,
+        },
+      });
+    }
+    
+    return NextResponse.json({
+      id: recommendation.id,
+      workoutType: recommendation.workoutType,
+      exercises: recommendation.exercises,
+      reasoning: recommendation.reasoning,
+      date: recommendation.date,
+    });
+  } catch (error) {
+    console.error('Error getting recommendation:', error);
+    return NextResponse.json(
+      { error: 'Failed to get recommendation' },
+      { status: 500 }
+    );
+  }
+}
+

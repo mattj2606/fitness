@@ -19,3 +19,4 @@ export type CheckinInput = z.infer<typeof checkinSchema>;
 export type CheckinUpdateInput = z.infer<typeof checkinUpdateSchema>;
 
 
+

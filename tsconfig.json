@@ -2,13 +2,16 @@
   "compilerOptions": {
     /* Language and Environment */
     "target": "ES2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "preserve",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowJs": true,
-
     /* Type Checking - Strict Mode */
     "strict": true,
     "noUnusedLocals": true,
@@ -17,27 +20,33 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
-
     /* Emit */
     "noEmit": true,
     "incremental": true,
-
     /* Interop Constraints */
     "isolatedModules": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-
     /* Path Aliases - Next.js App Router */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/app/*": ["./app/*"],
-      "@/types/*": ["./types/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/app/*": [
+        "./app/*"
+      ],
+      "@/types/*": [
+        "./types/*"
+      ]
     },
-
     /* Next.js Specific */
     "plugins": [
       {
@@ -49,10 +58,10 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
   ]
 }
-

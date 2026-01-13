@@ -1,145 +1,183 @@
 # Fitness Intelligence App
 
-Personal, self-hosted fitness intelligence app designed for daily use on mobile (iPhone) via a mobile-first web app.
+A personal, self-hosted fitness tracking and AI-powered workout recommendation system.
 
-## Features
+## 🎯 Vision
 
-- Fast daily check-ins (sleep, energy, soreness)
-- Structured workout logging
-- Muscle-level analytics
-- Simple, explainable workout recommendations
-- Nutrition tracking (calories & macros) with voice input
-- Medication and supplement tracking
-- Health profile (blood work, medical history)
+Build an AI personal trainer that:
+- **Learns your body** (personal recovery times, exercise preferences)
+- **Adapts to your needs** (goals, problems, schedule)
+- **Solves your problems** (injuries, conditions, weaknesses)
+- **Gets smarter every day** (continuous learning from your data)
 
-## Tech Stack
+## 🏗️ Current Status
 
-- **Framework**: Next.js 14+ (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: PostgreSQL with Prisma ORM
-- **Platform**: Mobile-first PWA
+### ✅ Phase 1: Foundation Complete
+- Database schema (15+ models)
+- Authentication system
+- Check-in system (daily soreness, sleep, energy)
+- Exercise management
+- **Recommendation Engine V2** (time-based, ML-ready)
+- Analytics foundation
 
-## Quick Start
+### ⏳ Phase 2: ML Models (Pending)
+- Need 30-50 workouts of data
+- Personal recovery time predictor
+- Exercise effectiveness model
+- Workout type predictor
 
-### Prerequisites
+### 🎯 Phase 3: True AI (Future)
+- Deep learning models
+- Conversational interface
+- Predictive health
+- Adaptive periodization
 
-- Node.js 18+ installed
-- Docker Desktop installed (for PostgreSQL)
-- npm or pnpm package manager
+## 🚀 Tech Stack
 
-### Installation
+### Current
+- **Next.js 14+** (App Router, Server Components)
+- **PostgreSQL + Prisma** (Database, self-hosted)
+- **TypeScript** (Type safety)
+- **Tailwind CSS** (Styling)
+- **Session-based Auth** (Custom, self-hosted)
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/mattj2606/fitness.git
-   cd fitness
-   ```
+### Considering for MVP
+- **Convex** (Cloud database for faster beta)
+- **Clerk** (Auth + Billing for beta)
+- **Shadcn UI** (Fast component development)
 
-2. Install dependencies
-   ```bash
-   npm install
-   ```
+**Strategy**: Start cloud for 5-person beta, migrate to self-hosted if needed.
 
-3. Start PostgreSQL database
-   ```bash
-   docker compose up -d
-   ```
-
-4. Set up environment variables
-   ```bash
-   cp .env.local.example .env.local
-   ```
-   Edit `.env.local` with your database credentials.
-
-5. Initialize Prisma and run migrations
-   ```bash
-   npm run db:migrate
-   ```
-
-6. Seed the database (optional)
-   ```bash
-   npm run db:seed
-   ```
-
-7. Start the development server
-   ```bash
-   npm run dev
-   ```
-
-8. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Documentation
-
-All project documentation is in the [`docs/`](./docs/) folder:
-
-- **[MIGRATION-GUIDE.md](./docs/MIGRATION-GUIDE.md)** - Complete guide for setting up on a new PC
-- **[SETUP-SUMMARY.md](./docs/SETUP-SUMMARY.md)** - Quick reference for setup commands
-- **[DATABASE-SETUP.md](./docs/DATABASE-SETUP.md)** - Detailed database setup instructions
-- **[TESTING-GUIDE.md](./docs/TESTING-GUIDE.md)** - Testing instructions and checklist
-- **[Session-1.md](./docs/Session-1.md)** - Development session log
-- **[project.md](./docs/project.md)** - Project overview and requirements
-- **[technical-evaluation.md](./docs/technical-evaluation.md)** - Technical roadmap
-- **[delivery-order-and-checkpoints.md](./docs/delivery-order-and-checkpoints.md)** - Implementation plan
-
-## Development
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
-- `npm run format` - Format code with Prettier
-
-## Database
-
-The app uses PostgreSQL with Prisma ORM. Database migrations are managed through Prisma.
-
-- `npm run db:migrate` - Create and apply migrations
-- `npm run db:studio` - Open Prisma Studio to view/edit data
-- `npm run db:seed` - Seed the database with initial data
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-app/                    # Next.js App Router pages
-  (routes)/            # Route groups
-  api/                 # API routes
-components/            # React components
-  ui/                  # Base UI components
-  checkin/             # Check-in components
-  workout/             # Workout components
-  analytics/           # Analytics components
-lib/                   # Utilities and shared code
-  db/                  # Database utilities (Prisma)
-  services/            # Business logic
-  utils/               # Helper functions
-  types/               # TypeScript types
-prisma/                # Prisma schema and migrations
-docs/                  # Project documentation
+app/                    # Next.js App Router
+  api/                  # API routes
+  checkin/              # Daily check-in
+  exercises/            # Exercise management
+  plan/                 # Workout recommendations
+
+components/             # React components
+  checkin/              # Check-in components
+  exercises/            # Exercise components
+  recommendation/       # Recommendation display
+
+lib/
+  services/
+    recommendation/     # ML-ready recommendation engine
+      engine-v2.ts      # Main engine (time-based)
+      recovery.ts       # Time-based recovery
+      coverage.ts       # Muscle coverage analysis
+      problems.ts       # Problem-based recommendations
+      ml-ready.ts       # ML feature extraction
+    analytics/          # Analytics services
+  auth/                 # Authentication
+  db/                   # Database (Prisma)
+
+prisma/
+  schema.prisma         # Database schema
+
+docs/                   # Comprehensive documentation
 ```
 
-## Current Status
+## 🧠 Key Features
 
-✅ **Phase 0**: Infrastructure Setup Complete  
-✅ **Phase 1 Day 3**: Authentication System  
-✅ **Phase 1 Day 4**: Exercise & Muscle Management  
-✅ **Phase 1 Day 5**: Check-In Backend  
-✅ **Phase 1 Day 6**: Check-In UI  
+### Time-Based Recovery
+- Uses **hours since stimulus** (not workout counts)
+- Processes **ALL workouts** (scales infinitely)
+- More precise than days-based
+- ML-ready (will learn personal recovery times)
 
-**Next**: Phase 1 Day 7 - Recommendation Engine
+### Muscle Coverage Analysis
+- Identifies undertrained muscles
+- Calculates gaps in training
+- Prioritizes muscles needing attention
+- Balances muscle development
 
-## Docker Setup
+### Problem-Based Recommendations
+- Addresses specific problems (injuries, conditions)
+- Example: "wrist pain" → forearm exercises
+- Priority-based (urgent problems first)
 
-This project uses Docker Compose for PostgreSQL. See [docs/DATABASE-SETUP.md](./docs/DATABASE-SETUP.md) for detailed instructions.
+### ML-Ready Architecture
+- Feature extraction built-in
+- Model interfaces defined
+- Training data preparation
+- Ready for personal ML models
 
-**Quick Start:**
+## 📚 Documentation
+
+### For AI Agents / New Developers
+- **[PROJECT-ONBOARDING.md](docs/PROJECT-ONBOARDING.md)** - Start here!
+- **[MVP-STRATEGY.md](docs/product/MVP-STRATEGY.md)** - Cloud vs self-hosted strategy
+- **[TECH-STACK-COMPARISON.md](docs/architecture/TECH-STACK-COMPARISON.md)** - Stack analysis
+- **[INCREMENTAL-BUILD-STRATEGY.md](docs/architecture/INCREMENTAL-BUILD-STRATEGY.md)** - Build approach
+
+### Research & Planning
+- **[recommendation-engine-research.md](docs/architecture/recommendation-engine-research.md)** - ML/AI research (890 lines)
+- **[AI-PERSONAL-TRAINER-VISION.md](docs/product/AI-PERSONAL-TRAINER-VISION.md)** - Long-term vision
+- **[RECOMMENDATION-ENGINE-RATIONALE.md](docs/architecture/RECOMMENDATION-ENGINE-RATIONALE.md)** - Design decisions
+
+### Implementation
+- **[architecture-overview.md](docs/architecture/architecture-overview.md)** - Current status
+- **[RECOMMENDATION-ENGINE-IMPLEMENTATION.md](docs/architecture/RECOMMENDATION-ENGINE-IMPLEMENTATION.md)** - What's built
+
+## 🛠️ Development
+
+### Setup
 ```bash
-docker compose up -d    # Start database
-docker compose ps       # Check status
-docker compose down     # Stop database
+# Install dependencies
+npm install
+
+# Setup database
+npx prisma migrate dev
+npx prisma db seed
+
+# Run development server
+npm run dev
 ```
 
-## License
+### Key Commands
+```bash
+npm run dev          # Development server
+npm run build        # Build for production
+npm run lint         # Lint code
+npm run type-check   # TypeScript checking
+npx prisma studio    # Database GUI
+```
 
-Private project - personal use only
+## 🎯 Next Steps
+
+### Immediate Priorities
+1. **Workout Logging Form** - Most critical missing piece
+2. **User Profile System** - Goals, problems, preferences
+3. **Shadcn UI Integration** - Fast component development
+
+### Short-Term
+1. Collect 30-50 workouts of data
+2. Train personal ML models
+3. Build analytics dashboard
+
+### Long-Term
+1. Deep learning models
+2. Conversational AI
+3. True AI personal trainer
+
+## 📝 Important Notes
+
+- **ML-Ready**: Architecture supports ML from day 1
+- **Time-Based**: Recovery uses hours, not workout counts
+- **Goal-Oriented**: Recommendations adapt to user goals/problems
+- **Incremental**: Build with HTML snippets, bit by bit
+
+## 🤝 Contributing
+
+This is a personal project, but feedback and suggestions are welcome!
+
+## 📄 License
+
+Private project - All rights reserved
+
+---
+
+**Built for sophisticated AI. Designed to evolve. Ready for the future.**
